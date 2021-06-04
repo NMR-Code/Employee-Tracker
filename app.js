@@ -132,6 +132,97 @@ const newRole = function() {
     });
 };
 
+// Function to create an employee
+const newEmployee = function() {
+    connection.query("SELECT * FROM role", function(err, data) {
+        if (err) {
+            console.log(err);
+        } else {
+            const roleList = data.map(data => data.title);
+            inquirer.prompt([{
+                    type: "input",
+                    name: "firstName",
+                    message: "What is the first name of the new employee?"
+                },
+                {
+                    type: "input",
+                    name: "lastName",
+                    message: "What is the last name of the new employee?"
+                },
+                {
+                    type: "list",
+                    name: "roleName",
+                    message: "What is the role of the new employee?",
+                    choices: roleList
+                }
+            ]).then(function(answers) {
+                if (answers.firstName === "" || answers.lastName === "") {
+                    console.log("The information provided is incomplete, please try again");
+                    newEmployee();
+                } else {
+                    let role = data.find(item => item.title === answers.roleName);
+                    connection.query("SELECT * FROM employee WHERE manager_id=0", function(err, managers) {
+                        if (err) {
+                            console.log(err);
+                        } else {
+                            const managerList = managers.map(manager => `${manager.first_name} ${manager.last_name}`);
+                            inquirer.prompt([{
+                                type: "list",
+                                name: "isManager",
+                                choices: ["YES", "NO"],
+                                message: "Is this employee a manager?"
+                            }]).then(function(result) {
+                                if (result.isManager === "YES") {
+                                    connection.query("INSERT INTO employee SET ?", {
+                                        first_name: answers.firstName,
+                                        last_name: answers.lastName,
+                                        role_id: role.id,
+                                        manager_id: 0
+                                    }, function(err, res) {
+                                        if (err) {
+                                            console.log(err);
+                                        } else {
+                                            console.log(`The new employee "${answers.firstName} ${answers.lastName}" has been created!`);
+                                            intro();
+                                        }
+                                    });
+                                } else {
+                                    inquirer.prompt([{
+                                        type: "list",
+                                        name: "managerName",
+                                        choices: managerList,
+                                        message: "What is the name of the manager?"
+                                    }]).then(function(response) {
+                                        let managerNameArray = response.managerName.split(" ");
+                                        connection.query(`SELECT id FROM employee WHERE first_name ='${managerNameArray[0]}' AND last_name ='${managerNameArray[1]}'`, function(err, mgrId) {
+                                            if (err) {
+                                                console.log(err);
+                                            } else {
+                                                connection.query("INSERT INTO employee SET ?", {
+                                                    first_name: answers.firstName,
+                                                    last_name: answers.lastName,
+                                                    role_id: role.id,
+                                                    manager_id: mgrId[0].id
+                                                }, function(err, res) {
+                                                    if (err) {
+                                                        console.log(err);
+                                                    } else {
+                                                        console.log(`The new employee "${answers.firstName} ${answers.lastName}" has been created!`);
+                                                        intro();
+                                                    }
+                                                });
+                                            }
+                                        });
+                                    });
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        }
+    });
+};
 
 //Initialize App
 intro();
