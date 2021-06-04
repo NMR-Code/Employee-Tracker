@@ -1,0 +1,25 @@
+{
+    "name": "employee-tracker",
+    "version": "1.0.0",
+    "description": "",
+    "main": "app.js",
+    "scripts": {
+        "start": "node app.js",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/NMR-Code/Employee-Tracker.git"
+    },
+    "author": "Nelson Rosado",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/NMR-Code/Employee-Tracker/issues"
+    },
+    "dependencies": {
+        "console.table": "^0.10.0",
+        "inquirer": "^8.0.0",
+        "mysql": "^2.18.1"
+    },
+    "homepage": "https://github.com/NMR-Code/Employee-Tracker#readme"
+}
