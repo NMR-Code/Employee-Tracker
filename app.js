@@ -26,7 +26,7 @@ const intro = function() {
         type: "list",
         name: "optionList",
         message: "Select an option below!",
-        choices: ["Create a Department", "Create a Role", "Add an Employee", "Remove Employee", "Update Employee Role", "Update Employee Manager", "View all Employees", "View all Employees by Department", "View all Employees By Manager", "View the total utilized budget of a Department", "Exit"]
+        choices: ["Create a Department", "Create a Role", "Add an Employee", "delete Employee", "Update Employee Role", "Update Employee Manager", "View all Employees", "View all Employees by Department", "View all Employees By Manager", "View the total utilized budget of a Department", "Exit"]
     }).then(function(answers) {
         switch (answers.intro) {
             case "Create a Department":
@@ -38,8 +38,8 @@ const intro = function() {
             case "Add an Employee":
                 newEmployee();
                 break;
-            case "Remove Employee":
-                removeEmployee();
+            case "delete Employee":
+                deleteEmployee();
                 break;
             case "Update Employee Role":
                 updateEmployeeRole();
@@ -219,6 +219,32 @@ const newEmployee = function() {
                         }
                     });
                 }
+            });
+        }
+    });
+};
+//Function to delete employee
+const deleteEmployee = function() {
+    connection.query("SELECT * FROM employee", function(err, data) {
+        if (err) {
+            console.log(err);
+        } else {
+            const employeeList = data.map(data => `${data.first_name} ${data.last_name}`);
+            inquirer.prompt([{
+                type: "list",
+                name: "employeeName",
+                choices: employeeList,
+                message: "Select the employee you wish to update from the list"
+            }]).then(function(answers) {
+                let employeeArray = answers.employeeName.split("");
+                connection.query(`DELETE FROM employee WHERE first_name='${employeeArray[0]}' AND last_name='${employeeArray[1]}'`, function(err, result) {
+                    if (err) {
+                        console.log(err);
+                    } else {
+                        console.log("The employee has been removed from the database!");
+                        viewAllEmployees();
+                    }
+                });
             });
         }
     });
